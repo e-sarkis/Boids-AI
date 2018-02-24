@@ -137,5 +137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 1
-  rotationSpeed: 1
-  avoidProximity: 1
+  rotationSpeed: 0.1
+  avoidProximity: 3
+  minDistanceToNeighbour: 100
+  _parentBoidsController: {fileID: 0}

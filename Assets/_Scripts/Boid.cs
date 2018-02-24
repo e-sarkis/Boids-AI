@@ -14,7 +14,7 @@ public class Boid : MonoBehaviour
 	Vector3 averagePositionOfGroup;
 
 	// Any Boid objects further than this will be ignored in calculations
-	float minDistanceToNeighbour;
+	public float minDistanceToNeighbour;
 
 	Vector3 _separation;	
 	Vector3 _alignment;
@@ -25,21 +25,20 @@ public class Boid : MonoBehaviour
 	void Update () 
 	{
 		// One in 5 chance of readjusting this frame
-		if (Random.Range(0, 5) < 1)
-		{
+		// if (Random.Range(0, 5) < 1)
+		// {
 			UpdateTrajectory();
-		}
+		// }
 		
 		//transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
 		transform.Translate(0, 0, Time.deltaTime * moveSpeed);
-
 	}
 
 	void UpdateTrajectory()
 	{
 		Vector3 avoidance 	= Vector3.zero; // Avoidance vector for collision intelligence.
 		Vector3 groupCenter	= Vector3.zero; // The center of the group
-		float groupSpeed = 0.1f; // TEMP - Do I need this here?
+		float groupSpeed = 0f; // TEMP - Do I need this here?
 		int groupSize = 0; // TEMP - total number of neighbours in our group
 
 		// Iterating through all Boid GameObjects
@@ -63,11 +62,12 @@ public class Boid : MonoBehaviour
 				groupSpeed = groupSpeed + otherBoid.moveSpeed;
 			}
 		}
-		_parentBoidsController.allBoids.Remove(gameObject); // add self back to list
+		_parentBoidsController.allBoids.Add(gameObject); // add self back to list
 
 		if (groupSize > 0)
 		{
 			groupCenter = (groupCenter / groupSize) + (_parentBoidsController.GetGoalPosition() - transform.position);
+			moveSpeed = 0f;
 			moveSpeed += groupSpeed / groupSize;
 
 			Vector3 direction = (groupCenter + avoidance) - transform.position;
