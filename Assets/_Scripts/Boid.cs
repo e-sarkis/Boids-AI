@@ -12,7 +12,7 @@ public class Boid : MonoBehaviour
 
 	// Autonomous Boid objects home in on initial spawn location after exceeding this.
 	public float autonomousTravelRadius;
-
+	
 	private Vector3 separation 	= Vector3.zero; // Avoidance vector for separation.
 	private Vector3 alignment	= Vector3.zero; // Alignment vector for positioning within group.
 	private Vector3 groupAverageHeading;
@@ -22,7 +22,7 @@ public class Boid : MonoBehaviour
 
 	// Reference to BoidsController object for Managed Boid objects
 	public BoidsController parentBoidsController;
-
+	
 	private float 	_distanceToCurrentNeighbour;
 	private Vector3	_spawnLocation;
 
