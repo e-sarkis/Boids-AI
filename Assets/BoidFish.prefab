@@ -37,9 +37,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4490773868060510}
-  - component: {fileID: 114153867795157162}
+  - component: {fileID: 114944660466665020}
   m_Layer: 0
-  m_Name: Fish Prefab
+  m_Name: BoidFish
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -228,7 +228,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114153867795157162
+--- !u!114 &114944660466665020
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -239,9 +239,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de2f1f28658dd044eae5561b834a9bb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boidType: 1
   moveSpeed: 3
-  rotationPercentage: 0.2
-  separationProximity: 6
+  rotationPercentage: 0.25
+  separationProximity: 5
   neighbourDetectRadius: 100
-  autonomousTravelRadius: 0
+  autonomousTravelRadius: 60
   parentBoidsController: {fileID: 0}

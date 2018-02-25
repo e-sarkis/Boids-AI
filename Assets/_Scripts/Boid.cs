@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum BoidType
+{
+	AUTONOMOUS,
+	MANAGED
+};
 
 public class Boid : MonoBehaviour 
 {
+	public BoidType boidType;
 	public float moveSpeed;				// Movement speed in editor units.
 	public float rotationPercentage;	// % of move speed for rotation speed.
 	public float separationProximity;	// Min distance from neighbough for corrective steering.
@@ -12,7 +18,6 @@ public class Boid : MonoBehaviour
 
 	// Autonomous Boid objects home in on initial spawn location after exceeding this.
 	public float autonomousTravelRadius;
-	
 	private Vector3 separation 	= Vector3.zero; // Avoidance vector for separation.
 	private Vector3 alignment	= Vector3.zero; // Alignment vector for positioning within group.
 	private Vector3 groupAverageHeading;
@@ -28,8 +33,17 @@ public class Boid : MonoBehaviour
 
 	void Update () 
 	{
-		//ManagedUpdateTrajectory();
-		AutonomousUpdateTrajectory();
+		switch (boidType)
+		{
+			case BoidType.AUTONOMOUS:
+				AutonomousUpdateTrajectory();
+				break;
+			case BoidType.MANAGED:
+				ManagedUpdateTrajectory();
+				break;
+			default:
+				break;
+		}
 
 		// Translate along Z-axis
 		transform.Translate(0, 0, Time.deltaTime * moveSpeed);
