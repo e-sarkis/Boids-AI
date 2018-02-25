@@ -5,71 +5,86 @@ using UnityEngine;
 
 public class Boid : MonoBehaviour 
 {
-	public float moveSpeed;			// Movement speed in editor units
-	public float rotationPercentage; 	// % of move speed for rotation speed
+	public float moveSpeed;				// Movement speed in editor units.
+	public float rotationPercentage; 	// % of move speed for rotation speed.
 	
-	public float avoidanceProximity; // Min distance from neighbough for corrective steering
+	public float avoidanceProximity; 	// Min distance from neighbough for corrective steering.
 
-	Vector3 averageHeadingOfGroup;
-	Vector3 averagePositionOfGroup;
+	Vector3 groupAverageHeading;
+	Vector3 groupAveragePosition;	// Averaged position of all neighbours.
+	float groupSpeed 	= 0f; 		// Total speed of neighbour group.
+	int groupSize 		= 0;		// Total Boids in neighbour group.
 
-	// Any Boid objects further than this will be ignored in calculations
-	public float minDistanceToNeighbour;
+	// Boid objects within radius will comprise neigbour group
+	public float neighbourDetectRadius;
 
-	Vector3 _separation;	
-	Vector3 _alignment;
+	// Autonomous Boid objects home in on initial spawn location after exceeding this.
+	public float autonomousTravelRadius;
+
+	Vector3 separation 	= Vector3.zero; // Avoidance vector for separation.
+	Vector3 alignment	= Vector3.zero; // Alignment vector for positioning within group.
 
 	/// Reference to BoidsController of this Boid.
-	public BoidsController _parentBoidsController;
+	public BoidsController parentBoidsController;
+
+	private float 	_distanceToCurrentNeighbour;
+	private Vector3	_spawnLocation;
 
 	void Update () 
 	{
-		UpdateTrajectory();
+		//ManagedUpdateTrajectory();
+		AutonomousUpdateTrajectory();
+
 		// Translate along Z-axis
 		transform.Translate(0, 0, Time.deltaTime * moveSpeed);
 	}
 
-	void UpdateTrajectory()
+	// Leaderless, stays within travel radius.
+	void AutonomousUpdateTrajectory()
 	{
-		Vector3 avoidance 	= Vector3.zero; // Avoidance vector for collision intelligence.
-		Vector3 groupCenter	= Vector3.zero; // The center of the group.
+		separation 	= Vector3.zero;
+		alignment	= Vector3.zero;
 
-		float groupSpeed 	= 0f; 	// Total speed of neighbour group.
-		int groupSize 		= 0;	// Total Boids in neighbour group.
+		// Obtain neighbours.
+		Collider[] neigbourColliders = Physics.OverlapSphere(transform.position, neighbourDetectRadius);
 
-		_parentBoidsController.allBoids.Remove(gameObject); // Remove self from List before iteration.
-		foreach (GameObject boidObject in _parentBoidsController.allBoids)
+		List<GameObject> neighboughs = new List<GameObject>();
+		for (int i = 0; i < neigbourColliders.Length; i++)
 		{
-			float distanceToCurrentNeighbour = Vector3.Distance(boidObject.transform.position, transform.position);
-			if (distanceToCurrentNeighbour <= minDistanceToNeighbour)
+			neighboughs.Add(neigbourColliders[i].gameObject);
+		}
+		neighboughs.Remove(gameObject); // Remove self from List before iteration.
+
+		foreach (GameObject gameObj in neighboughs)
+		{
+			float _distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
+			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
-				groupCenter += boidObject.transform.position; // Add neighbour positions for averaging.
+				alignment += gameObj.transform.position; // Add neighbour positions for averaging.
 				groupSize++;
 
-				Boid otherBoid = boidObject.GetComponent<Boid>();
+				Boid otherBoid = gameObj.GetComponent<Boid>();
 				if (otherBoid)
 				{
 					groupSpeed += otherBoid.moveSpeed;
 				}
-
-				// Account for correction if experiencing proximity intrusion.
-				if (distanceToCurrentNeighbour < avoidanceProximity)
+				// Account for separation correction if experiencing proximity intrusion.
+				if (_distanceToCurrentNeighbour < avoidanceProximity)
 				{
-					avoidance += transform.position - boidObject.transform.position;
+					separation += transform.position - gameObj.transform.position;
 				}
 			}
 		}
-		_parentBoidsController.allBoids.Add(gameObject); // Add this back to List
 
 		if (groupSize > 0)
 		{
-			// Calculate average and add Vector to Goal.
-			groupCenter = (groupCenter / groupSize) + (_parentBoidsController.GetGoalPosition() - transform.position);
+			// Calculate center.
+			alignment = alignment / groupSize;
 			
 			/// Rudimentary accounting for movement speed variance.
 			//moveSpeed = groupSpeed / groupSize;
 
-			Vector3 direction = (groupCenter + avoidance) - transform.position;
+			Vector3 direction = (alignment + separation) - transform.position;
 			if (direction != Vector3.zero)
 			{
 				transform.rotation = Quaternion.Slerp(transform.rotation,
@@ -77,5 +92,58 @@ public class Boid : MonoBehaviour
 													rotationPercentage * moveSpeed * Time.deltaTime);
 			}
 		}
+	}
+
+	// Managed by BoidsManager, homes in on goal position.
+	void ManagedUpdateTrajectory()
+	{
+		separation 	= Vector3.zero;
+		alignment	= Vector3.zero;
+
+		parentBoidsController.allBoids.Remove(gameObject); // Remove self from List before iteration.
+		foreach (GameObject gameObj in parentBoidsController.allBoids)
+		{
+			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
+			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
+			{
+				alignment += gameObj.transform.position; // Add neighbour positions for averaging.
+				groupSize++;
+
+				Boid otherBoid = gameObj.GetComponent<Boid>();
+				if (otherBoid)
+				{
+					groupSpeed += otherBoid.moveSpeed;
+				}
+
+				// Account for separation correction if experiencing proximity intrusion.
+				if (_distanceToCurrentNeighbour < avoidanceProximity)
+				{
+					separation += transform.position - gameObj.transform.position;
+				}
+			}
+		}
+		parentBoidsController.allBoids.Add(gameObject); // Add this back to List
+
+		if (groupSize > 0)
+		{
+			// Calculate center and add Vector to Goal.
+			alignment = (alignment / groupSize) + (parentBoidsController.GetGoalPosition() - transform.position);
+			
+			/// Rudimentary accounting for movement speed variance.
+			//moveSpeed = groupSpeed / groupSize;
+
+			Vector3 direction = (alignment + separation) - transform.position;
+			if (direction != Vector3.zero)
+			{
+				transform.rotation = Quaternion.Slerp(transform.rotation,
+													Quaternion.LookRotation(direction),
+													rotationPercentage * moveSpeed * Time.deltaTime);
+			}
+		}
+	}
+
+	void Awake()
+	{
+		_spawnLocation = transform.position;
 	}
 }

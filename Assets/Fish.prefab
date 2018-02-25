@@ -136,8 +136,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de2f1f28658dd044eae5561b834a9bb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1
-  rotationSpeed: 0.1
-  avoidProximity: 3
-  minDistanceToNeighbour: 100
-  _parentBoidsController: {fileID: 0}
+  moveSpeed: 3
+  rotationPercentage: 0.25
+  avoidanceProximity: 3
+  neighbourDetectRadius: 100
+  autonomousTravelRadius: 0
+  parentBoidsController: {fileID: 0}

@@ -31,7 +31,7 @@ public class BoidsController : MonoBehaviour
 			Boid boid = boidObject.GetComponent<Boid>();
 			if (boid)
 			{
-				boid._parentBoidsController = this;
+				boid.parentBoidsController = this;
 			}
 		}
 	}

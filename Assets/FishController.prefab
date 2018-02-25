@@ -23,7 +23,7 @@ GameObject:
   m_Layer: 0
   m_Name: FishController
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -34,7 +34,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1031936551048416}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 1, z: -14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -51,7 +51,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1613253597a98384787cbde80bbb0dad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefabBoid: {fileID: 0}
-  _numBoids: 10
-  _allBoids: []
-  _spawnRadius: 5
+  prefabBoid: {fileID: 1612938087907012, guid: f9f746937c394ba47b0f95947cfe3a27, type: 2}
+  numBoids: 10
+  allBoids: []
+  spawnRadius: 5
+  goalObject: {fileID: 0}
