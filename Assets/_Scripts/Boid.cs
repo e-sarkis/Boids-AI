@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class Boid : MonoBehaviour 
 {
-	public float moveSpeed;
-	public float rotationSpeed;
-
-	public float avoidProximity = 1.0f;
+	public float moveSpeed;			// Movement speed in editor units
+	public float rotationPercentage; 	// % of move speed for rotation speed
+	
+	public float avoidanceProximity; // Min distance from neighbough for corrective steering
 
 	Vector3 averageHeadingOfGroup;
 	Vector3 averagePositionOfGroup;
@@ -24,58 +24,57 @@ public class Boid : MonoBehaviour
 
 	void Update () 
 	{
-		// One in 5 chance of readjusting this frame
-		// if (Random.Range(0, 5) < 1)
-		// {
-			UpdateTrajectory();
-		// }
-		
-		//transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+		UpdateTrajectory();
+		// Translate along Z-axis
 		transform.Translate(0, 0, Time.deltaTime * moveSpeed);
 	}
 
 	void UpdateTrajectory()
 	{
 		Vector3 avoidance 	= Vector3.zero; // Avoidance vector for collision intelligence.
-		Vector3 groupCenter	= Vector3.zero; // The center of the group
-		float groupSpeed = 0f; // TEMP - Do I need this here?
-		int groupSize = 0; // TEMP - total number of neighbours in our group
+		Vector3 groupCenter	= Vector3.zero; // The center of the group.
 
-		// Iterating through all Boid GameObjects
-		_parentBoidsController.allBoids.Remove(gameObject); // Remove self from List before iteration
+		float groupSpeed 	= 0f; 	// Total speed of neighbour group.
+		int groupSize 		= 0;	// Total Boids in neighbour group.
+
+		_parentBoidsController.allBoids.Remove(gameObject); // Remove self from List before iteration.
 		foreach (GameObject boidObject in _parentBoidsController.allBoids)
 		{
 			float distanceToCurrentNeighbour = Vector3.Distance(boidObject.transform.position, transform.position);
 			if (distanceToCurrentNeighbour <= minDistanceToNeighbour)
 			{
-				groupCenter += boidObject.transform.position; // Average out center based on nearby relevant neighbour position
+				groupCenter += boidObject.transform.position; // Add neighbour positions for averaging.
 				groupSize++;
 
-				if (distanceToCurrentNeighbour < avoidProximity)
+				Boid otherBoid = boidObject.GetComponent<Boid>();
+				if (otherBoid)
 				{
-					// Account for proximity
-					avoidance = avoidance + (transform.position - boidObject.transform.position);
+					groupSpeed += otherBoid.moveSpeed;
 				}
 
-				// TEMP - what does this do?
-				Boid otherBoid = boidObject.GetComponent<Boid>();
-				groupSpeed = groupSpeed + otherBoid.moveSpeed;
+				// Account for correction if experiencing proximity intrusion.
+				if (distanceToCurrentNeighbour < avoidanceProximity)
+				{
+					avoidance += transform.position - boidObject.transform.position;
+				}
 			}
 		}
-		_parentBoidsController.allBoids.Add(gameObject); // add self back to list
+		_parentBoidsController.allBoids.Add(gameObject); // Add this back to List
 
 		if (groupSize > 0)
 		{
+			// Calculate average and add Vector to Goal.
 			groupCenter = (groupCenter / groupSize) + (_parentBoidsController.GetGoalPosition() - transform.position);
-			moveSpeed = 0f;
-			moveSpeed += groupSpeed / groupSize;
+			
+			/// Rudimentary accounting for movement speed variance.
+			//moveSpeed = groupSpeed / groupSize;
 
 			Vector3 direction = (groupCenter + avoidance) - transform.position;
 			if (direction != Vector3.zero)
 			{
 				transform.rotation = Quaternion.Slerp(transform.rotation,
 													Quaternion.LookRotation(direction),
-													rotationSpeed * Time.deltaTime);
+													rotationPercentage * moveSpeed * Time.deltaTime);
 			}
 		}
 	}
