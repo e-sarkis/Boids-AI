@@ -77,7 +77,7 @@ public class Boid : MonoBehaviour
 			// Calculate center.
 			alignment = alignment / groupSize;
 			
-			/// Rudimentary accounting for movement speed variance.
+			// Rudimentary accounting for movement speed variance.
 			//moveSpeed = groupSpeed / groupSize;
 
 			Vector3 direction = (alignment + separation) - transform.position;
@@ -125,7 +125,7 @@ public class Boid : MonoBehaviour
 			// Calculate center and add Vector to Goal.
 			alignment = (alignment / groupSize) + (parentBoidsController.GetGoalPosition() - transform.position);
 			
-			/// Rudimentary accounting for movement speed variance.
+			// Rudimentary accounting for movement speed variance.
 			//moveSpeed = groupSpeed / groupSize;
 
 			Vector3 direction = (alignment + separation) - transform.position;
