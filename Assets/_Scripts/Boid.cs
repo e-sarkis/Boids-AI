@@ -6,25 +6,21 @@ using UnityEngine;
 public class Boid : MonoBehaviour 
 {
 	public float moveSpeed;				// Movement speed in editor units.
-	public float rotationPercentage; 	// % of move speed for rotation speed.
-	
-	public float avoidanceProximity; 	// Min distance from neighbough for corrective steering.
-
-	Vector3 groupAverageHeading;
-	Vector3 groupAveragePosition;	// Averaged position of all neighbours.
-	float groupSpeed 	= 0f; 		// Total speed of neighbour group.
-	int groupSize 		= 0;		// Total Boids in neighbour group.
-
-	// Boid objects within radius will comprise neigbour group
-	public float neighbourDetectRadius;
+	public float rotationPercentage;	// % of move speed for rotation speed.
+	public float separationProximity;	// Min distance from neighbough for corrective steering.
+	public float neighbourDetectRadius;	// Boid objects within radius will comprise neigbour group
 
 	// Autonomous Boid objects home in on initial spawn location after exceeding this.
 	public float autonomousTravelRadius;
 
-	Vector3 separation 	= Vector3.zero; // Avoidance vector for separation.
-	Vector3 alignment	= Vector3.zero; // Alignment vector for positioning within group.
+	private Vector3 separation 	= Vector3.zero; // Avoidance vector for separation.
+	private Vector3 alignment	= Vector3.zero; // Alignment vector for positioning within group.
+	private Vector3 groupAverageHeading;
+	private Vector3 groupAveragePosition;		// Averaged position of all neighbours.
+	private float groupSpeed 	= 0f; 			// Total speed of neighbour group.
+	private int groupSize 		= 0;			// Total Boids in neighbour group.
 
-	/// Reference to BoidsController of this Boid.
+	// Reference to BoidsController object for Managed Boid objects
 	public BoidsController parentBoidsController;
 
 	private float 	_distanceToCurrentNeighbour;
@@ -69,7 +65,7 @@ public class Boid : MonoBehaviour
 					groupSpeed += otherBoid.moveSpeed;
 				}
 				// Account for separation correction if experiencing proximity intrusion.
-				if (_distanceToCurrentNeighbour < avoidanceProximity)
+				if (_distanceToCurrentNeighbour < separationProximity)
 				{
 					separation += transform.position - gameObj.transform.position;
 				}
@@ -116,7 +112,7 @@ public class Boid : MonoBehaviour
 				}
 
 				// Account for separation correction if experiencing proximity intrusion.
-				if (_distanceToCurrentNeighbour < avoidanceProximity)
+				if (_distanceToCurrentNeighbour < separationProximity)
 				{
 					separation += transform.position - gameObj.transform.position;
 				}
