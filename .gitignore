@@ -5,6 +5,13 @@
 /[Bb]uilds/
 /Assets/AssetStoreTools*
 
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 # Visual Studio 2015 cache directory
 /.vs/
 
