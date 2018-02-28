@@ -29,7 +29,7 @@ public class Boid : MonoBehaviour
 	private Vector3	_spawnLocation;				// The spawn location of this Boid.
 	private int _groupSize 		= 0;			// Total Boids in neighbour group.
 	private float _groupSpeed 	= 0f; 			// Total speed of neighbour group.
-	private float 	_distanceToCurrentNeighbour;
+	private float _distanceToCurrentNeighbour;
 
 	private TrajectoryUpdate trajectoryUpdate; // Delegate used to update trajectory of this Boid.
 
@@ -81,16 +81,15 @@ public class Boid : MonoBehaviour
 
 		foreach (GameObject gameObj in neighboughs)
 		{
-			float _distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
+			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
-				_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
-				_groupSize++;
-
-				Boid otherBoid = gameObj.GetComponent<Boid>();
-				if (otherBoid)
+				Boid otherBoid = gameObj.GetComponentInParent<Boid>();	
+				if (otherBoid && otherBoid.boidType == BoidType.AUTONOMOUS)
 				{
+					_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
 					_groupSpeed += otherBoid.moveSpeed;
+					_groupSize++;
 				}
 				// Account for _separation correction if experiencing proximity intrusion.
 				if (_distanceToCurrentNeighbour < separationProximity)
@@ -133,7 +132,7 @@ public class Boid : MonoBehaviour
 				_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
 				_groupSize++;
 
-				Boid otherBoid = gameObj.GetComponent<Boid>();
+				Boid otherBoid = gameObj.GetComponentInParent<Boid>();
 				if (otherBoid)
 				{
 					_groupSpeed += otherBoid.moveSpeed;

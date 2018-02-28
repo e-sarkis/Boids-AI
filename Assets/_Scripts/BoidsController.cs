@@ -9,7 +9,7 @@ public class BoidsController : MonoBehaviour
 	// Total number of boids belonging to this BoidsController.
 	public int numBoids;
 	// List of all GameObjects managed by this BoidsController.
-	public List<GameObject> allBoidGameObjects;
+	[HideInInspector] public List<GameObject> allBoidGameObjects;
 	// Max spawn distance from this BoidsController transform position.
 	public int spawnRadius;
 	// Reference to in-scene goal GameObject for Boid objects in this BoidsController.
