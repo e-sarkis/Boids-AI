@@ -10,6 +10,8 @@ public enum BoidType
 
 public class Boid : MonoBehaviour 
 {
+	// Reference to BoidsController object for Managed Boid objects
+	[HideInInspector] public BoidsController parentBoidsController;
 	public BoidType boidType;
 	public float moveSpeed;				// Movement speed in editor units.
 	public float rotationPercentage;	// % of move speed for rotation speed.
@@ -18,42 +20,54 @@ public class Boid : MonoBehaviour
 
 	// Autonomous Boid objects home in on initial spawn location after exceeding this.
 	public float autonomousTravelRadius;
-	private Vector3 separation 	= Vector3.zero; // Avoidance vector for separation.
-	private Vector3 alignment	= Vector3.zero; // Alignment vector for positioning within group.
-	private Vector3 groupAverageHeading;
-	private Vector3 groupAveragePosition;		// Averaged position of all neighbours.
-	private float groupSpeed 	= 0f; 			// Total speed of neighbour group.
-	private int groupSize 		= 0;			// Total Boids in neighbour group.
 
-	// Reference to BoidsController object for Managed Boid objects
-	public BoidsController parentBoidsController;
-	
+	private Vector3 _separation	= Vector3.zero; // Avoidance vector for separation.
+	private Vector3 _alignment 	= Vector3.zero; // Alignment vector for positioning within group.
+	private Vector3 _cohesion	= Vector3.zero; // Direction vector for _cohesion.
+	private Vector3 _groupAverageHeading;
+	private Vector3 _groupAveragePosition;		// Averaged position of all neighbours.
+	private Vector3	_spawnLocation;				// The spawn location of this Boid.
+	private int _groupSize 		= 0;			// Total Boids in neighbour group.
+	private float _groupSpeed 	= 0f; 			// Total speed of neighbour group.
 	private float 	_distanceToCurrentNeighbour;
-	private Vector3	_spawnLocation;
 
-	void Update () 
+	private TrajectoryUpdate trajectoryUpdate; // Delegate used to update trajectory of this Boid.
+
+	void Awake()
+	{
+		_spawnLocation = transform.position;
+		SetTrajectoryUpdate();
+	}
+
+	void Update() 
+	{
+		trajectoryUpdate();
+		// Translate along Z-axis in calculated trajectory
+		transform.Translate(0, 0, Time.deltaTime * moveSpeed);
+	}
+
+	delegate void TrajectoryUpdate();
+
+	void SetTrajectoryUpdate()
 	{
 		switch (boidType)
 		{
 			case BoidType.AUTONOMOUS:
-				AutonomousUpdateTrajectory();
+				trajectoryUpdate = AutonomousUpdateTrajectory;
 				break;
 			case BoidType.MANAGED:
-				ManagedUpdateTrajectory();
+				trajectoryUpdate = ManagedUpdateTrajectory;
 				break;
 			default:
 				break;
 		}
-
-		// Translate along Z-axis
-		transform.Translate(0, 0, Time.deltaTime * moveSpeed);
 	}
 
-	// Leaderless, stays within travel radius.
+	// Leaderless. Stays within travel radius and has no consideration for goal position.
 	void AutonomousUpdateTrajectory()
 	{
-		separation 	= Vector3.zero;
-		alignment	= Vector3.zero;
+		_separation	= Vector3.zero;
+		_alignment	= Vector3.zero;
 
 		// Obtain neighbours.
 		Collider[] neigbourColliders = Physics.OverlapSphere(transform.position, neighbourDetectRadius);
@@ -70,90 +84,85 @@ public class Boid : MonoBehaviour
 			float _distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
-				alignment += gameObj.transform.position; // Add neighbour positions for averaging.
-				groupSize++;
+				_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
+				_groupSize++;
 
 				Boid otherBoid = gameObj.GetComponent<Boid>();
 				if (otherBoid)
 				{
-					groupSpeed += otherBoid.moveSpeed;
+					_groupSpeed += otherBoid.moveSpeed;
 				}
-				// Account for separation correction if experiencing proximity intrusion.
+				// Account for _separation correction if experiencing proximity intrusion.
 				if (_distanceToCurrentNeighbour < separationProximity)
 				{
-					separation += transform.position - gameObj.transform.position;
+					_separation += transform.position - gameObj.transform.position;
 				}
 			}
 		}
 
-		if (groupSize > 0)
+		if (_groupSize > 0)
 		{
 			// Calculate center.
-			alignment = alignment / groupSize;
+			_alignment = _alignment / _groupSize;
 			
 			// Rudimentary accounting for movement speed variance.
-			//moveSpeed = groupSpeed / groupSize;
+			//moveSpeed = _groupSpeed / _groupSize;
 
-			Vector3 direction = (alignment + separation) - transform.position;
-			if (direction != Vector3.zero)
+			_cohesion = (_alignment + _separation) - transform.position;
+			if (_cohesion != Vector3.zero)
 			{
 				transform.rotation = Quaternion.Slerp(transform.rotation,
-													Quaternion.LookRotation(direction),
+													Quaternion.LookRotation(_cohesion),
 													rotationPercentage * moveSpeed * Time.deltaTime);
 			}
 		}
 	}
 
-	// Managed by BoidsManager, homes in on goal position.
+	// Managed by BoidsManager. Homes in on goal position while accounting for neighbours.
 	void ManagedUpdateTrajectory()
 	{
-		separation 	= Vector3.zero;
-		alignment	= Vector3.zero;
+		_separation	= Vector3.zero;
+		_alignment	= Vector3.zero;
 
-		parentBoidsController.allBoids.Remove(gameObject); // Remove self from List before iteration.
-		foreach (GameObject gameObj in parentBoidsController.allBoids)
+		parentBoidsController.allBoidGameObjects.Remove(gameObject); // Remove self from List before iteration.
+		foreach (GameObject gameObj in parentBoidsController.allBoidGameObjects)
 		{
 			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
-				alignment += gameObj.transform.position; // Add neighbour positions for averaging.
-				groupSize++;
+				_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
+				_groupSize++;
 
 				Boid otherBoid = gameObj.GetComponent<Boid>();
 				if (otherBoid)
 				{
-					groupSpeed += otherBoid.moveSpeed;
+					_groupSpeed += otherBoid.moveSpeed;
 				}
 
-				// Account for separation correction if experiencing proximity intrusion.
+				// Account for _separation correction if experiencing proximity intrusion.
 				if (_distanceToCurrentNeighbour < separationProximity)
 				{
-					separation += transform.position - gameObj.transform.position;
+					_separation += transform.position - gameObj.transform.position;
 				}
 			}
 		}
-		parentBoidsController.allBoids.Add(gameObject); // Add this back to List
+		parentBoidsController.allBoidGameObjects.Add(gameObject); // Add this back to List
 
-		if (groupSize > 0)
+		if (_groupSize > 0)
 		{
 			// Calculate center and add Vector to Goal.
-			alignment = (alignment / groupSize) + (parentBoidsController.GetGoalPosition() - transform.position);
+			_alignment = (_alignment / _groupSize) + (parentBoidsController.GetGoalPosition() - transform.position);
 			
 			// Rudimentary accounting for movement speed variance.
-			//moveSpeed = groupSpeed / groupSize;
+			//moveSpeed = _groupSpeed / _groupSize;
 
-			Vector3 direction = (alignment + separation) - transform.position;
-			if (direction != Vector3.zero)
+			_cohesion = (_alignment + _separation) - transform.position;
+			if (_cohesion != Vector3.zero)
 			{
 				transform.rotation = Quaternion.Slerp(transform.rotation,
-													Quaternion.LookRotation(direction),
+													Quaternion.LookRotation(_cohesion),
 													rotationPercentage * moveSpeed * Time.deltaTime);
 			}
 		}
-	}
-
-	void Awake()
-	{
-		_spawnLocation = transform.position;
 	}
 }
