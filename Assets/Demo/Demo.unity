@@ -495,6 +495,10 @@ Prefab:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1031936551048416, guid: c98a4625f969d34408b889861c933b3a, type: 2}
+      propertyPath: m_Name
+      value: GoldfishController
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c98a4625f969d34408b889861c933b3a, type: 2}
   m_IsPrefabParent: 0

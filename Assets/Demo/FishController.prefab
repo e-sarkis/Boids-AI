@@ -53,6 +53,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabBoid: {fileID: 1612938087907012, guid: f9f746937c394ba47b0f95947cfe3a27, type: 2}
   numBoids: 10
-  allBoids: []
+  allBoidGameObjects: []
   spawnRadius: 5
   goalObject: {fileID: 0}

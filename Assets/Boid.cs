@@ -4,8 +4,8 @@ using UnityEngine;
 
 public enum BoidType
 {
-	AUTONOMOUS,
-	MANAGED
+	Autonomous,
+	Managed
 };
 
 public class Boid : MonoBehaviour 
@@ -18,20 +18,20 @@ public class Boid : MonoBehaviour
 	public float separationProximity;	// Min distance from neighbough for corrective steering.
 	public float neighbourDetectRadius;	// Boid objects within radius will comprise neigbour group
 
-	// Autonomous Boid objects home in on initial spawn location after exceeding this.
-	public float autonomousTravelRadius;
-
 	private Vector3 _separation	= Vector3.zero; // Avoidance vector for separation.
 	private Vector3 _alignment 	= Vector3.zero; // Alignment vector for positioning within group.
 	private Vector3 _cohesion	= Vector3.zero; // Direction vector for _cohesion.
 	private Vector3 _groupAverageHeading;
 	private Vector3 _groupAveragePosition;		// Averaged position of all neighbours.
 	private Vector3	_spawnLocation;				// The spawn location of this Boid.
+	
 	private int _groupSize 		= 0;			// Total Boids in neighbour group.
 	private float _groupSpeed 	= 0f; 			// Total speed of neighbour group.
 	private float _distanceToCurrentNeighbour;
 
-	private TrajectoryUpdate trajectoryUpdate; // Delegate used to update trajectory of this Boid.
+	// Delegate used to update trajectory of this Boid.
+	delegate void TrajectoryUpdate();
+	private TrajectoryUpdate trajectoryUpdate;
 
 	void Awake()
 	{
@@ -46,16 +46,14 @@ public class Boid : MonoBehaviour
 		transform.Translate(0, 0, Time.deltaTime * moveSpeed);
 	}
 
-	delegate void TrajectoryUpdate();
-
 	void SetTrajectoryUpdate()
 	{
 		switch (boidType)
 		{
-			case BoidType.AUTONOMOUS:
+			case BoidType.Autonomous:
 				trajectoryUpdate = AutonomousUpdateTrajectory;
 				break;
-			case BoidType.MANAGED:
+			case BoidType.Managed:
 				trajectoryUpdate = ManagedUpdateTrajectory;
 				break;
 			default:
@@ -63,7 +61,7 @@ public class Boid : MonoBehaviour
 		}
 	}
 
-	// Leaderless. Stays within travel radius and has no consideration for goal position.
+	// Leaderless, no consideration for goal position.
 	void AutonomousUpdateTrajectory()
 	{
 		_separation	= Vector3.zero;
@@ -85,7 +83,7 @@ public class Boid : MonoBehaviour
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
 				Boid otherBoid = gameObj.GetComponentInParent<Boid>();	
-				if (otherBoid && otherBoid.boidType == BoidType.AUTONOMOUS)
+				if (otherBoid && otherBoid.boidType == BoidType.Autonomous)
 				{
 					_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
 					_groupSpeed += otherBoid.moveSpeed;
@@ -101,12 +99,7 @@ public class Boid : MonoBehaviour
 
 		if (_groupSize > 0)
 		{
-			// Calculate center.
-			_alignment = _alignment / _groupSize;
-			
-			// Rudimentary accounting for movement speed variance.
-			//moveSpeed = _groupSpeed / _groupSize;
-
+			_alignment = _alignment / _groupSize; // Calculate center.
 			_cohesion = (_alignment + _separation) - transform.position;
 			if (_cohesion != Vector3.zero)
 			{
@@ -151,10 +144,6 @@ public class Boid : MonoBehaviour
 		{
 			// Calculate center and add Vector to Goal.
 			_alignment = (_alignment / _groupSize) + (parentBoidsController.GetGoalPosition() - transform.position);
-			
-			// Rudimentary accounting for movement speed variance.
-			//moveSpeed = _groupSpeed / _groupSize;
-
 			_cohesion = (_alignment + _separation) - transform.position;
 			if (_cohesion != Vector3.zero)
 			{
