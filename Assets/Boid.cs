@@ -122,12 +122,11 @@ public class Boid : MonoBehaviour
 			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
-				_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
-				_groupSize++;
-
 				Boid otherBoid = gameObj.GetComponentInParent<Boid>();
-				if (otherBoid)
+				if (otherBoid && otherBoid.boidType == BoidType.Managed)
 				{
+					_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
+					_groupSize++;
 					_groupSpeed += otherBoid.moveSpeed;
 				}
 
