@@ -1,7 +1,7 @@
 # Boids-AI
 Boids-AI is a Unity3D Boids demo project!
 
-![](https://i.imgur.com/kF2xyWZ.gif)
+![](https://i.imgur.com/r46aK52.gif)
 
 # What is Boids?
 [Boids](http://www.red3d.com/cwr/boids/) is a classic computer model for coordinated animal motion created in 1986 by [Craig Reynolds](http://www.red3d.com/cwr/index.html).
