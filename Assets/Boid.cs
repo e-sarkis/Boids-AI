@@ -81,19 +81,8 @@ public class Boid : MonoBehaviour
 		{
 			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
-			{
-				Boid otherBoid = gameObj.GetComponentInParent<Boid>();	
-				if (otherBoid && otherBoid.boidType == BoidType.Autonomous)
-				{
-					_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
-					_groupSpeed += otherBoid.moveSpeed;
-					_groupSize++;
-				}
-				// Account for _separation correction if experiencing proximity intrusion.
-				if (_distanceToCurrentNeighbour < separationProximity)
-				{
-					_separation += transform.position - gameObj.transform.position;
-				}
+			{	
+				neighbouringGameObjectResponse(gameObj);
 			}
 		}
 
@@ -122,19 +111,7 @@ public class Boid : MonoBehaviour
 			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
-				Boid otherBoid = gameObj.GetComponentInParent<Boid>();
-				if (otherBoid && otherBoid.boidType == BoidType.Managed)
-				{
-					_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
-					_groupSize++;
-					_groupSpeed += otherBoid.moveSpeed;
-				}
-
-				// Account for _separation correction if experiencing proximity intrusion.
-				if (_distanceToCurrentNeighbour < separationProximity)
-				{
-					_separation += transform.position - gameObj.transform.position;
-				}
+				neighbouringGameObjectResponse(gameObj);
 			}
 		}
 		parentBoidsController.allBoidGameObjects.Add(gameObject); // Add this back to List
@@ -150,6 +127,23 @@ public class Boid : MonoBehaviour
 													Quaternion.LookRotation(_cohesion),
 													rotationPercentage * moveSpeed * Time.deltaTime);
 			}
+		}
+	}
+
+	// Response to neighbouring GameObject
+	void neighbouringGameObjectResponse(GameObject gameObj)
+	{
+		Boid otherBoid = gameObj.GetComponentInParent<Boid>();
+		if (otherBoid && otherBoid.boidType == boidType)
+		{
+			_alignment += gameObj.transform.position; // Add neighbour positions for averaging.
+			_groupSpeed += otherBoid.moveSpeed;
+			_groupSize++;
+		}
+		// Account for _separation correction if experiencing proximity intrusion.
+		if (_distanceToCurrentNeighbour < separationProximity)
+		{
+			_separation += transform.position - gameObj.transform.position;
 		}
 	}
 }
