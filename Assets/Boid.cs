@@ -82,7 +82,7 @@ public class Boid : MonoBehaviour
 			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{	
-				detectedGameObjectResponse(gameObj);
+				DetectedGameObjectResponse(gameObj);
 			}
 		}
 
@@ -111,7 +111,7 @@ public class Boid : MonoBehaviour
 			_distanceToCurrentNeighbour = Vector3.Distance(gameObj.transform.position, transform.position);
 			if (_distanceToCurrentNeighbour <= neighbourDetectRadius)
 			{
-				detectedGameObjectResponse(gameObj);
+				DetectedGameObjectResponse(gameObj);
 			}
 		}
 		parentBoidsController.allBoidGameObjects.Add(gameObject); // Add this back to List
@@ -131,7 +131,7 @@ public class Boid : MonoBehaviour
 	}
 
 	// Response to neighbouring GameObject
-	void detectedGameObjectResponse(GameObject gameObj)
+	void DetectedGameObjectResponse(GameObject gameObj)
 	{
 		Boid otherBoid = gameObj.GetComponentInParent<Boid>();
 		if (otherBoid && otherBoid.boidType == boidType)
