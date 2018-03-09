@@ -30,8 +30,8 @@ public class BoidsController : MonoBehaviour
 		for(int i = 0; i < numToSpawn; i++)
 		{
 			spawnOffset = new Vector3(Random.Range(-spawnRadius, spawnRadius),
-										Random.Range(-spawnRadius, spawnRadius),
-										Random.Range(-spawnRadius, spawnRadius));
+								Random.Range(-spawnRadius, spawnRadius),
+								Random.Range(-spawnRadius, spawnRadius));
 
 			GameObject boidObject = Instantiate(prefabBoid, transform.position + spawnOffset, Quaternion.identity);
 			allBoidGameObjects.Add(boidObject);
