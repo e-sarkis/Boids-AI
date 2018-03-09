@@ -13,20 +13,20 @@ public class Boid : MonoBehaviour
 	// Reference to BoidsController object for Managed Boid objects
 	[HideInInspector] public BoidsController parentBoidsController;
 	public BoidType boidType;
-	public float moveSpeed;				// Movement speed in editor units.
+	public float moveSpeed;			// Movement speed in editor units.
 	public float rotationPercentage;	// % of move speed for rotation speed.
 	public float separationProximity;	// Min distance from neighbough for corrective steering.
 	public float neighbourDetectRadius;	// Boid objects within radius will comprise neigbour group
 
 	private Vector3 _separation	= Vector3.zero; // Avoidance vector for separation.
 	private Vector3 _alignment 	= Vector3.zero; // Alignment vector for positioning within group.
-	private Vector3 _cohesion	= Vector3.zero; // Direction vector for _cohesion.
+	private Vector3 _cohesion	= Vector3.zero; // Direction vector for cohesion.
 	private Vector3 _groupAverageHeading;
 	private Vector3 _groupAveragePosition;		// Averaged position of all neighbours.
-	private Vector3	_spawnLocation;				// The spawn location of this Boid.
+	private Vector3	_spawnLocation;			// The spawn location of this Boid.
 	
-	private int _groupSize 		= 0;			// Total Boids in neighbour group.
-	private float _groupSpeed 	= 0f; 			// Total speed of neighbour group.
+	private int _groupSize 		= 0;		// Total Boids in neighbour group.
+	private float _groupSpeed 	= 0f; 		// Total speed of neighbour group.
 	private float _distanceToCurrentNeighbour;
 
 	// Delegate used to update trajectory of this Boid.
@@ -93,8 +93,8 @@ public class Boid : MonoBehaviour
 			if (_cohesion != Vector3.zero)
 			{
 				transform.rotation = Quaternion.Slerp(transform.rotation,
-													Quaternion.LookRotation(_cohesion),
-													rotationPercentage * moveSpeed * Time.deltaTime);
+									Quaternion.LookRotation(_cohesion),
+									rotationPercentage * moveSpeed * Time.deltaTime);
 			}
 		}
 	}
@@ -124,8 +124,8 @@ public class Boid : MonoBehaviour
 			if (_cohesion != Vector3.zero)
 			{
 				transform.rotation = Quaternion.Slerp(transform.rotation,
-													Quaternion.LookRotation(_cohesion),
-													rotationPercentage * moveSpeed * Time.deltaTime);
+									Quaternion.LookRotation(_cohesion),
+									rotationPercentage * moveSpeed * Time.deltaTime);
 			}
 		}
 	}
